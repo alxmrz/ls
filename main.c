@@ -7,63 +7,11 @@
 #include <grp.h>
 #include <defines.h>
 #include <arg_parser.h>
-
-struct file_obj {
-    struct dirent *d;
-    struct stat *st;
-    struct passwd *user;
-    struct group *group;
-};
+#include <dir_reader.h>
 
 static bool showDots = false;
 static bool fullInfo = false;
 static int countFiles = 0;
-
-static struct file_obj **listFilesInDirectory(char *dirName) {
-    DIR *d;
-    struct dirent *dir;
-
-    d = opendir(dirName);
-    if (!d) {
-        printf("%s %s", "Can not scan directory:", dirName);
-        return NULL;
-    }
-
-    struct file_obj **files = malloc(sizeof(struct file_obj *) * 10);
-
-    while ((dir = readdir(d)) != NULL) {
-        if (dir->d_name[0] == '.' && !showDots) {
-            continue;
-        }
-
-        if (countFiles % 10 == 0) {
-            files -= countFiles;
-            files = realloc(files, sizeof(struct file_obj) * countFiles + sizeof(struct file_obj) * 10);
-            files += countFiles;
-        }
-
-        countFiles++;
-
-        struct file_obj *file = malloc(sizeof(struct file_obj));
-
-        struct stat *st = malloc(sizeof(struct stat));
-        stat(dir->d_name, st);
-
-        file->d = dir;
-        file->user = getpwuid(st->st_uid);
-        file->group = getgrgid(st->st_gid);
-        file->st = st;
-
-        *files = file;
-        files++;
-    }
-
-    closedir(d);
-
-    files -= countFiles; // reset to start
-
-    return files;
-}
 
 static void printFiles(struct file_obj **files) {
     while (*files != NULL) {
@@ -113,7 +61,7 @@ int main(int argc, char **argv) {
         return EXIT_ERROR;
     }
 
-    struct file_obj **files = listFilesInDirectory(".");
+    struct file_obj **files = listFilesInDirectory(".", &countFiles, showDots);
     if (files == NULL) {
         printf("%s\n", "Failed to scan the current directory");
         return EXIT_ERROR;

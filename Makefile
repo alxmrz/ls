@@ -1,6 +1,6 @@
 SOURCES = main.c \
-src/arg_parser.c
-
+src/arg_parser.c \
+src/dir_reader.c
 
 run:
 	./ls -la
