@@ -5,10 +5,8 @@
 #include <sys/stat.h>
 #include <pwd.h>
 #include <grp.h>
-
-#define NULL_BYTE 0x00
-#define EXIT_ERROR 1
-#define EXIT_SUCCESS 0
+#include <defines.h>
+#include <arg_parser.h>
 
 struct file_obj {
     struct dirent *d;
@@ -20,26 +18,6 @@ struct file_obj {
 static bool showDots = false;
 static bool fullInfo = false;
 static int countFiles = 0;
-
-static int parseArguments(char **argv) {
-    char *arg = argv[1];
-
-    if (*arg != '-') {
-        printf("%s %s", "Unknown argument:", arg);
-
-        return EXIT_ERROR;
-    }
-
-    arg++;
-
-    while (*arg != NULL_BYTE) {
-        if (*arg == 'a') showDots = true;
-        if (*arg == 'l') fullInfo = true;
-        arg++;
-    }
-
-    return EXIT_SUCCESS;
-}
 
 static struct file_obj **listFilesInDirectory(char *dirName) {
     DIR *d;
@@ -130,7 +108,7 @@ static void freeFiles(struct file_obj **files) {
 }
 
 int main(int argc, char **argv) {
-    if (argc > 1 && parseArguments(argv) == EXIT_ERROR) {
+    if (argc > 1 && parseArguments(argv, &showDots, &fullInfo) == EXIT_ERROR) {
         printf("%s\n", "Failed to parse arguments");
         return EXIT_ERROR;
     }
