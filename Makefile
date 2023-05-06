@@ -1,2 +1,11 @@
+SOURCES = main.c \
+src/arg_parser.c
+
+
 run:
-	gcc main.c && ./a.out -la
+	./ls -la
+all: build
+build:
+	gcc -g -I./inc -L./src $(SOURCES) -o ls
+clean:
+	rm ./ls
