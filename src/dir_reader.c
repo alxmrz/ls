@@ -30,7 +30,7 @@ struct file_obj **listFilesInDirectory(char *dirName, int *countFiles, bool show
             files += *countFiles;
         }
 
-        *countFiles++;
+        (*countFiles)++;
 
         struct file_obj *file = malloc(sizeof(struct file_obj));
 
